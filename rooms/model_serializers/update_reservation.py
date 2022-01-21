@@ -52,8 +52,13 @@ class UpdateRoomReservationSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
 
-        instance.date_time.reserved_number -= 1
-        instance.save()
+        prev_date_time = get_user_room_date_time(validated_data['username'],
+                                                 validated_data['room_name'],
+                                                 validated_data['date'],
+                                                 validated_data['from_time'],
+                                                 validated_data['to_time'])[2]
+        prev_date_time.reserved_number -= 1
+        prev_date_time.save()
         date_time = get_user_room_date_time(validated_data['username'],
                                             validated_data['room_name'],
                                             validated_data['new_date'],
@@ -61,5 +66,6 @@ class UpdateRoomReservationSerializer(serializers.ModelSerializer):
                                             validated_data['new_to_time'])[2]
         instance.date_time = date_time
         date_time.reserved_number += 1
+        date_time.save()
         instance.save()
         return instance
